@@ -1,6 +1,7 @@
 import { reactive, effect, shallowReactive } from '@zxn2889/achieve-proxy'
-import { unmount, setInstance } from './lifeCycle.js'
+import { unmount } from './lifeCycle.js'
 import { patchProps } from './browser.js'
+import { setInstance, getInstance } from './instance.js'
 
 const Comment = Symbol()
 const Text = Symbol()
@@ -80,7 +81,12 @@ function createRenderer(options) {
         else if (typeof type === 'object') {
             if (!n1) {
                 // 挂载组件
-                mountComponent(n2, container, anchor)
+                const instance = getInstance()
+                if (instance._isCacheKeepAlive) {
+                    instance.keptAlive._activate(instance.subTree, container, anchor)
+                } else {
+                    mountComponent(n2, container, anchor)
+                }
             } else {
                 // 更新组件
                 patchComponent(n1, n2, container, anchor)
